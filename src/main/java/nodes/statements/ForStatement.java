@@ -5,7 +5,7 @@ import nodes.Condition;
 
 import java.util.List;
 
-public class ForStatement extends BaseNode {
+public class ForStatement extends Statement {
     private Condition condition;
     private Variable variable;
     private IterationChange iterationChange;

@@ -72,7 +72,6 @@ type:
 operators:
      OPERATOR_LESS
     | OPERATOR_DECREMENT
-    | OPERATOR 'decrement'
     | OPERATOR 'equal'
     | OPERATOR 'division'
     | OPERATOR 'addition' //*
@@ -131,14 +130,14 @@ break_rule: CODE_BLOCK UNARY_RELATION_RIGHT NODE BLOCK_START
  BLOCK_END END_POINT
  BLOCK_END END_POINT?;
 
-class:
+class_statement:
     CONCEPT_CLASS UNARY_RELATION_RIGHT CLASS_NODE
     BLOCK_START
     //TODO implements
     //TODO extends
     ( class_field
     | class_constructor
-    | method
+    | method_statement
     )*
     BLOCK_END END_POINT
 ;
@@ -175,7 +174,7 @@ class_constructor: //TODO addicted to class
     END_POINT
 ;
 
-method: //TODO CLASS
+method_statement: //TODO CLASS
     BINARY_RELATION_RIGHT NREL_METHOD DVOETOCHIE CLASS_NODE
     BLOCK_START
         ((UNARY_RELATION_LEFT CONCEPT_METHOD

@@ -2,7 +2,7 @@ package nodes;
 
 import nodes.BaseNode;
 
-public class Operator extends BaseNode {
+public class Operator extends Expression {
     private String operator;
 
     public Operator(String operator) {

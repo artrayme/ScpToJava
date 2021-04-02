@@ -1,8 +1,9 @@
 package nodes;
 
-import nodes.BaseNode;
+import nodes.expressions.Expression;
+import nodes.expressions.Operator;
 
-public class Condition extends BaseNode {
+public class Condition extends Expression {
     private String left, right;
     private Operator operator;
 

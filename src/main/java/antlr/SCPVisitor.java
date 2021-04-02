@@ -11,6 +11,12 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface SCPVisitor<T> extends ParseTreeVisitor<T> {
 	/**
+	 * Visit a parse tree produced by {@link SCPParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType(SCPParser.TypeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SCPParser#operators}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -59,9 +65,57 @@ public interface SCPVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBreak_rule(SCPParser.Break_ruleContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SCPParser#class_statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClass_statement(SCPParser.Class_statementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#class_field}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClass_field(SCPParser.Class_fieldContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#class_constructor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClass_constructor(SCPParser.Class_constructorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#method_statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethod_statement(SCPParser.Method_statementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#called_method}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCalled_method(SCPParser.Called_methodContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#body}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBody(SCPParser.BodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#runtime_code}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRuntime_code(SCPParser.Runtime_codeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SCPParser#code}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCode(SCPParser.CodeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SCPParser#cr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCr(SCPParser.CrContext ctx);
 }

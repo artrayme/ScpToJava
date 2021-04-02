@@ -1,6 +1,8 @@
 package nodes;
 
-public class BreakRule extends BaseNode {
+import nodes.statements.Statement;
+
+public class BreakRule extends Statement {
 
     @Override
     public String toString() {

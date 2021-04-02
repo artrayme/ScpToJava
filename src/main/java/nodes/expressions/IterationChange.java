@@ -1,8 +1,9 @@
 package nodes;
 
-import nodes.BaseNode;
+import nodes.expressions.Expression;
+import nodes.expressions.Operator;
 
-public class IterationChange extends BaseNode {
+public class IterationChange extends Expression {
     private String variable;
     private Operator operator;
 

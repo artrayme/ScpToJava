@@ -2,6 +2,10 @@ package nodes;
 
 import antlr.SCPBaseVisitor;
 import antlr.SCPParser;
+import nodes.BaseNode;
+import nodes.BreakRule;
+import nodes.expressions.*;
+import nodes.statements.ForStatement;
 
 
 import java.util.ArrayList;
@@ -14,12 +18,12 @@ public class Visitor extends SCPBaseVisitor<BaseNode> {
     public BaseNode visitFor_satement(SCPParser.For_satementContext ctx) {
         List<BaseNode> nodes = new ArrayList<>();
         for (int i = 0; i < ctx.iteration_body().code().size(); i++) {
-             nodes.add(visit(ctx.iteration_body().code(i)));
+            nodes.add(visit(ctx.iteration_body().code(i)));
         }
 
         ForStatement forStatement = new ForStatement(
                 visitCondition(ctx.condition()),
-                new Variable("int", ctx.iteration_variable().NODE(0).getText(), ctx.iteration_variable().NODE(1).getText()),
+                new Variable("int", new NameAndValue(ctx.iteration_variable().NODE(0).getText(), ctx.iteration_variable().NODE(1).getText())),
                 visitIteration_change(ctx.iteration_change()), nodes);
         code.add(forStatement.toString());
         return forStatement;
@@ -56,5 +60,9 @@ public class Visitor extends SCPBaseVisitor<BaseNode> {
         return new IterationChange(ctx.NODE(1).getText(), visitOperators(ctx.operators()));
     }
 
+    @Override
+    public BaseNode visitClass_statement(SCPParser.Class_statementContext ctx) {
+        return super.visitClass_statement(ctx);
+    }
 
 }
