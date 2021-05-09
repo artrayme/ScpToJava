@@ -34,25 +34,33 @@ NREL_IMPLEMENTS: NREL 'implements';
 NREL_EXTENDS: NREL 'extends';
 NREL_BRANCHING: NREL 'branching';
 NREL_KEYWORD: NREL 'keywords';
-
+NREL_OBJECT_PROTOTYPE: NREL 'object_prototype';
+NREL_CONDITION_VARIABLE: NREL 'condition_variable';
+NREL_CASE: NREL 'case_body';
+NREL_DEFAULT_RESPONCE: NREL 'default_responce';
 
 
 CONCEPT_VARIABLE: CONCEPT'variable';
 CONCEPT_METHOD: CONCEPT 'method';
+CONCEPT_CALLED_OBJECT: CONCEPT 'called_object';
 CONCEPT_ACCESS_MODIFIER: CONCEPT 'access_modifier_' ('private'|'public'|'protected');
 CONCEPT_WHILE: CONCEPT 'while';
 CONCEPT_CHILD_CLASS: CONCEPT 'child_class';
 CONCEPT_CHILD_INTERFACE: CONCEPT 'child_interface';
 CONCEPT_IF_ELSE: CONCEPT 'if_else';
+CONCEPT_SWITCH: CONCEPT 'switch';
+CONCEPT_CASE: CONCEPT 'case';
 CODE_BLOCK:CONCEPT'code_block';
 FOR:CONCEPT'for';
 BREAK:CONCEPT'break';
+CONTINUE: CONCEPT 'continue';
 CONCEPT_CALLED_METHOD: CONCEPT CALLED_METHOD;
 CALLED_METHOD:'called_method';
 CONCEPT_ARGUMENT: CONCEPT 'argument''s'?;
 CONCEPT_ITERATION_STATEMENT: CONCEPT'iteration_statement';
 CONCEPT_CLASS: CONCEPT 'class';
 CONCEPT_INTERFACE: CONCEPT 'interface';
+CONCEPT_RETURN_STATEMENT: CONCEPT 'return_statement';
 CONCEPT: 'concept_';
 CLASS: 'class_';
 CONSTRUCTOR: 'constructor_';
@@ -71,6 +79,9 @@ EMPTY_CIRCLE:'...';
 DVOETOCHIE: ':';
 NAME:([a-z]|[A-Z])+;
 
+file: //START
+    (class_statement | interface_statement)*
+;
 
 type:
     'integer' |
@@ -80,15 +91,28 @@ type:
 ;
 
 operators:
-     OPERATOR_LESS
-    | OPERATOR_DECREMENT
-    | OPERATOR 'equal'
+     OPERATOR 'equal' // this have two arguments
     | OPERATOR 'division'
     | OPERATOR 'addition' //*
     | OPERATOR 'plus'
     | OPERATOR 'minus'
     | OPERATOR 'equality'
-    | OPERATOR 'more'//TODO MORE
+    | OPERATOR 'more'
+    | OPERATOR 'more_equal'
+    | OPERATOR 'less'
+    | OPERATOR 'less_equal'
+    | OPERATOR 'division_equal'
+    | OPERATOR 'addition_equal'
+    | OPERATOR 'plus_equal'
+    | OPERATOR 'minus_equal'
+    | OPERATOR 'or'
+    | OPERATOR 'and'
+    //DECREMENTS INCREMNTES
+    | OPERATOR 'unary_minus_left' // this have only one argument
+    | OPERATOR 'unary_minus_right'
+    | OPERATOR 'unary_plus_left'
+    | OPERATOR 'unary_plus_right'
+    | OPERATOR 'not'
 ;
 
 keywords:
@@ -151,6 +175,25 @@ while_statement:
     BLOCK_END END_POINT
 ;
 
+switch_statement:
+   NODE
+   BLOCK_START
+    UNARY_RELATION_LEFT CONCEPT_SWITCH END_POINT
+    BINARY_RELATION_RIGHT NREL_CONDITION_VARIABLE DVOETOCHIE
+        (NODE | called_method | object_call) END_POINT
+    (
+    UNARY_RELATION_RIGHT ROLE DVOETOCHIE NODE
+        BLOCK_START
+            UNARY_RELATION_LEFT CONCEPT_CASE END_POINT
+            BINARY_RELATION_RIGHT NREL_CONDITION_VARIABLE DVOETOCHIE
+                (NODE | called_method | object_call) END_POINT
+            BINARY_RELATION_RIGHT NREL_CASE DVOETOCHIE switch_body
+        BLOCK_END END_POINT
+    )+
+    BINARY_RELATION_RIGHT NREL_DEFAULT_RESPONCE DVOETOCHIE switch_body
+   BLOCK_END END_POINT
+;
+
 if_branching_statement:
     NODE
     BLOCK_START
@@ -164,6 +207,11 @@ if_branching_statement:
 break_rule: NODE
      BLOCK_START UNARY_RELATION_LEFT BREAK END_POINT
      BLOCK_END END_POINT
+;
+
+continue_rule: NODE
+    BLOCK_START UNARY_RELATION_LEFT CONTINUE END_POINT
+    BLOCK_END END_POINT
 ;
 
 class_statement:
@@ -238,12 +286,21 @@ called_method:
     BLOCK_START
     (((UNARY_RELATION_LEFT CONCEPT_CALLED_METHOD)
     | (BINARY_RELATION_RIGHT NREL_CALLER DVOETOCHIE NODE)
-    | (BINARY_RELATION_RIGHT NREL_FUNCTION_PROTOTYPE DVOETOCHIE (operators|CLASS_NODE))
+    | (BINARY_RELATION_RIGHT NREL_FUNCTION_PROTOTYPE DVOETOCHIE (operators|CLASS_NODE))//TODO здесь тебе надо обработать операторы + - ...
     | (BINARY_RELATION_RIGHT NREL_ARGUMENT DVOETOCHIE NODE
         BLOCK_START
         UNARY_RELATION_LEFT CONCEPT_ARGUMENT END_POINT
-        (UNARY_RELATION_RIGHT ROLE DVOETOCHIE (NODE|called_method) END_POINT)*
+        (UNARY_RELATION_RIGHT ROLE DVOETOCHIE (NODE|called_method) END_POINT)*//THIS IS ARGUMENT
         BLOCK_END)) END_POINT)*
+    BLOCK_END END_POINT
+;
+
+object_call:
+    NODE
+    BLOCK_START
+        UNARY_RELATION_LEFT CONCEPT_CALLED_OBJECT END_POINT
+        BINARY_RELATION_LEFT NREL_OBJECT_PROTOTYPE DVOETOCHIE (NODE | object_call) END_POINT
+        BINARY_RELATION_RIGHT NREL_CALLER DVOETOCHIE NODE END_POINT
     BLOCK_END END_POINT
 ;
 
@@ -255,23 +312,60 @@ body:
     BINARY_RELATION_RIGHT NREL_BODY DVOETOCHIE NODE
     BLOCK_START
     UNARY_RELATION_LEFT CODE_BLOCK END_POINT
-    runtime_code
-    BLOCK_END
+    runtime_code*
+    BLOCK_END END_POINT
 ;
 
-code: (UNARY_RELATION_LEFT ROLE
+switch_body:
+    NODE
+    BLOCK_START
+    UNARY_RELATION_LEFT CODE_BLOCK END_POINT
+    switch_code*
+    BLOCK_END END_POINT
+;
+
+code: (UNARY_RELATION_LEFT ROLE DVOETOCHIE// THIS CODE FOR CYCLE BODIES
     (called_method
     | while_statement
     | if_branching_statement
     | break_rule
+    | switch_statement
+    | continue_rule
+    | return_statement
     | for_satement))
 ;
 
-runtime_code:
-    (UNARY_RELATION_LEFT ROLE
+runtime_code: // THIS ONE FOR NONE CYCLES
+    (UNARY_RELATION_LEFT ROLE DVOETOCHIE
     ( called_method
     | while_statement
-    | if_branching_statement))*
+    | switch_statement
+    | if_branching_statement
+    | for_satement
+    | return_statement))
+;
+
+switch_code:
+    (UNARY_RELATION_LEFT ROLE DVOETOCHIE
+    (called_method
+    | while_statement
+    | switch_statement
+    | if_branching_statement
+    | break_rule
+    | return_statement
+    | for_satement))
+;
+
+return_statement:
+   NODE
+    (BLOCK_START
+        UNARY_RELATION_LEFT CONCEPT_RETURN_STATEMENT END_POINT
+        (BINARY_RELATION_RIGHT NREL_RETURN_VALUE DVOETOCHIE NODE
+        BLOCK_START
+            BINARY_RELATION_LEFT NREL_VALUE DVOETOCHIE NODE END_POINT
+        BLOCK_END END_POINT)?//If this empty, translate like return;
+    BLOCK_END END_POINT
+    )
 ;
 
 
