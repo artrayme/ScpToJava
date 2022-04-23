@@ -1,0 +1,46 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.20-M1'
+    id 'antlr'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+group 'org.artrayme'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    antlr 'org.antlr:antlr4:4.9.3'
+    implementation 'org.antlr:antlr4-runtime:4.9.3'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ["-visitor", "-long-messages"]
+
+    doLast {
+        copy {
+            from "build/generated-src/antlr/main"
+            into "src/main/java"
+        }
+        delete 'build/generated-src'
+    }
+}
+
+compileKotlin{
+    dependsOn(generateGrammarSource)
+    kotlinOptions {
+        jvmTarget = 17
+    }
+}
